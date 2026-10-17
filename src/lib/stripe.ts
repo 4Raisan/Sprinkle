@@ -11,9 +11,10 @@ export type CheckoutResult = {
   mocked: boolean;
 };
 
-const realKey = process.env.STRIPE_SECRET_KEY?.trim();
+const realKey = process.env.DEMO_MODE === "false" ? process.env.STRIPE_SECRET_KEY?.trim() : undefined;
 // Don't pin apiVersion — let the SDK use its bundled default to avoid type mismatches across SDK upgrades.
 const stripe = realKey ? new Stripe(realKey) : null;
+export const paymentsEnabled = !!stripe;
 
 export async function createCheckoutPaymentIntent(args: {
   bookingId: string;
@@ -56,6 +57,7 @@ export async function createCheckoutPaymentIntent(args: {
 
 export function verifyAndParseWebhook(rawBody: string, signature: string | null) {
   if (!stripe) {
+    if (process.env.NODE_ENV === "production") return null;
     // Mock path: just JSON-parse, trust the body.
     try {
       return JSON.parse(rawBody) as Stripe.Event;

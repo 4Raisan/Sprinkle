@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { createCheckoutPaymentIntent } from "@/lib/stripe";
+import { createCheckoutPaymentIntent, paymentsEnabled } from "@/lib/stripe";
 
 /**
  * POST /api/stripe/checkout { bookingId }
@@ -11,6 +11,7 @@ import { createCheckoutPaymentIntent } from "@/lib/stripe";
  * of the flow (and the webhook handler) can run.
  */
 export async function POST(req: NextRequest) {
+  if (!paymentsEnabled) return NextResponse.json({ error: "Payments are disabled in this demo." }, { status: 503 });
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

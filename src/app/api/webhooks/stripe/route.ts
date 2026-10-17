@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyAndParseWebhook } from "@/lib/stripe";
+import { verifyAndParseWebhook, paymentsEnabled } from "@/lib/stripe";
 
 export const runtime = "nodejs"; // signature verification needs the raw body
 
@@ -14,6 +14,7 @@ export const runtime = "nodejs"; // signature verification needs the raw body
  * signature verification — useful for local testing with curl.
  */
 export async function POST(req: NextRequest) {
+  if (!paymentsEnabled) return NextResponse.json({ error: "Payments are disabled in this demo." }, { status: 503 });
   const rawBody = await req.text();
   const signature = req.headers.get("stripe-signature");
 
@@ -25,8 +26,8 @@ export async function POST(req: NextRequest) {
       const intent = event.data.object as { id: string; metadata?: { bookingId?: string } };
       const bookingId = intent.metadata?.bookingId;
       if (bookingId) {
-        await prisma.booking.update({
-          where: { id: bookingId },
+        await prisma.booking.updateMany({
+          where: { id: bookingId, stripePaymentIntentId: intent.id, status: "PENDING" },
           data: { status: "CONFIRMED" },
         }).catch(() => null);
       }

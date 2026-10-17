@@ -4,10 +4,18 @@ import { Plus, Trash2, EyeOff, Eye, Wallet, Sparkles, Clock } from "lucide-react
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCents } from "@/lib/utils";
-import { stripeMocked } from "@/lib/stripe";
+import { serviceSchema, availabilitySlotSchema } from "@/lib/validation";
 import Reveal from "@/components/Reveal";
 
 export const dynamic = "force-dynamic";
+
+async function currentWasherId() {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "WASHER") throw new Error("Unauthorized");
+  const profile = await prisma.washerProfile.findUnique({ where: { userId: session.user.id }, select: { id: true } });
+  if (!profile) throw new Error("Washer profile not found");
+  return profile.id;
+}
 
 export default async function WasherDashboard() {
   const session = await auth();
@@ -82,41 +90,7 @@ export default async function WasherDashboard() {
             </div>
             <div className="flex-1">
               <h2 className="font-display text-lg font-semibold">Payouts</h2>
-              {profile.stripeAccountId ? (
-                <p className="mt-1 text-sm text-emerald-300">
-                  Stripe Connect linked ·{" "}
-                  <span className="font-mono text-xs text-emerald-200/80">
-                    {profile.stripeAccountId}
-                  </span>
-                </p>
-              ) : (
-                <>
-                  <p className="mt-1 text-sm text-slate-400">
-                    Link a Stripe account to receive payouts.
-                    {stripeMocked && (
-                      <span className="ml-1 text-amber-300">
-                        (Stripe is in mock mode — this just sets a fake ID.)
-                      </span>
-                    )}
-                  </p>
-                  <form
-                    action={async () => {
-                      "use server";
-                      await prisma.washerProfile.update({
-                        where: { id: profile.id },
-                        data: { stripeAccountId: `acct_mock_${profile.id.slice(0, 8)}` },
-                      });
-                      revalidatePath("/dashboard/washer");
-                    }}
-                    className="mt-3"
-                  >
-                    <button className="btn-primary text-sm">
-                      <Sparkles className="h-4 w-4" />
-                      Link Stripe account
-                    </button>
-                  </form>
-                </>
-              )}
+              <p className="mt-1 text-sm text-slate-400">Payouts are disabled in this demo. No Stripe account is linked or required.</p>
             </div>
           </div>
         </section>
@@ -149,8 +123,9 @@ export default async function WasherDashboard() {
                 <form
                   action={async () => {
                     "use server";
-                    await prisma.service.update({
-                      where: { id: s.id },
+                    const washerId = await currentWasherId();
+                    await prisma.service.updateMany({
+                      where: { id: s.id, washerId },
                       data: { active: !s.active },
                     });
                     revalidatePath("/dashboard/washer");
@@ -177,9 +152,11 @@ export default async function WasherDashboard() {
               const name = String(fd.get("name") ?? "");
               const durationMin = Number(fd.get("durationMin") ?? 30);
               const priceCents = Math.round(Number(fd.get("priceDollars") ?? 0) * 100);
-              if (!name || !priceCents) return;
+              const washerId = await currentWasherId();
+              const parsed = serviceSchema.safeParse({ name, durationMin, priceCents });
+              if (!parsed.success) return;
               await prisma.service.create({
-                data: { washerId: profile.id, name, durationMin, priceCents },
+                data: { washerId, ...parsed.data },
               });
               revalidatePath("/dashboard/washer");
             }}
@@ -212,7 +189,7 @@ export default async function WasherDashboard() {
       <Reveal delay={0.15}>
         <section className="card">
           <h2 className="font-display text-lg font-semibold">Weekly availability</h2>
-          <p className="text-xs text-slate-500">Recurring slots, one per row.</p>
+          <p className="text-xs text-slate-500">Recurring slots in UTC, one per row.</p>
           <ul className="mt-4 divide-y divide-white/5">
             {profile.availability.map((a) => (
               <li key={a.id} className="flex items-center justify-between py-2.5 text-sm">
@@ -225,7 +202,8 @@ export default async function WasherDashboard() {
                 <form
                   action={async () => {
                     "use server";
-                    await prisma.availability.delete({ where: { id: a.id } });
+                    const washerId = await currentWasherId();
+                    await prisma.availability.deleteMany({ where: { id: a.id, washerId } });
                     revalidatePath("/dashboard/washer");
                   }}
                 >
@@ -246,9 +224,11 @@ export default async function WasherDashboard() {
               const dow = Number(fd.get("dow"));
               const startTime = String(fd.get("startTime") ?? "");
               const endTime = String(fd.get("endTime") ?? "");
-              if (!startTime || !endTime) return;
+              const washerId = await currentWasherId();
+              const parsed = availabilitySlotSchema.safeParse({ dayOfWeek: dow, startTime, endTime });
+              if (!parsed.success) return;
               await prisma.availability.create({
-                data: { washerId: profile.id, dayOfWeek: dow, startTime, endTime },
+                data: { washerId, ...parsed.data },
               });
               revalidatePath("/dashboard/washer");
             }}

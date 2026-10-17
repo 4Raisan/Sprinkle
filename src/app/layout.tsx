@@ -67,7 +67,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </header>
 
-        <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">{children}</main>
+        <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+          <p className="mb-6 rounded-xl border border-amber-400/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-200">
+            Demo MVP · Sample services and bookings only. No payments or real car washes.
+          </p>
+          {children}
+        </main>
 
         <footer className="mt-20 border-t border-white/5 py-8 text-center text-xs text-slate-500">
           <div className="mx-auto max-w-6xl px-4">

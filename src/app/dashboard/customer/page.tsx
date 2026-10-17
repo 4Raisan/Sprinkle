@@ -15,10 +15,11 @@ type DashboardBooking = Booking & {
 };
 
 export default async function CustomerDashboard({
-  searchParams,
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: { booked?: string };
+  searchParams: Promise<{ booked?: string }>;
 }) {
+  const searchParams = await searchParamsPromise;
   const session = await auth();
   if (!session?.user) redirect("/auth/signin?callbackUrl=/dashboard/customer");
 
@@ -55,7 +56,7 @@ export default async function CustomerDashboard({
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4 text-sm text-emerald-200 backdrop-blur">
             <span className="inline-flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
-              Booking created. We'll confirm via email once payment goes through.
+              Demo booking created. Payments and email notifications are disabled.
             </span>
           </div>
         </Reveal>

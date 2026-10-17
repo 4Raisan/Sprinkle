@@ -2,15 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-
-const slotSchema = z.object({
-  dayOfWeek: z.number().int().min(0).max(6),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/),
-});
+import { availabilitySlotSchema } from "@/lib/validation";
 
 const bodySchema = z.object({
-  slots: z.array(slotSchema),
+  slots: z.array(availabilitySlotSchema).max(100),
 });
 
 /**

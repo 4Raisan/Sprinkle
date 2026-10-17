@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { serviceSchema as createSchema } from "@/lib/validation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-
-const createSchema = z.object({
-  name: z.string().min(2),
-  durationMin: z.number().int().min(5).max(480),
-  priceCents: z.number().int().min(100),
-});
 
 export async function GET(req: NextRequest) {
   const washerId = req.nextUrl.searchParams.get("washerId");

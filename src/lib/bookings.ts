@@ -14,7 +14,7 @@ export type CreateBookingInput = {
 
 export type CreateBookingResult =
   | { ok: true; bookingId: string; deduped: boolean }
-  | { ok: false; code: "SLOT_TAKEN" | "SERVICE_NOT_FOUND" | "OUTSIDE_AVAILABILITY" | "UNKNOWN"; message: string };
+  | { ok: false; code: "SLOT_TAKEN" | "SERVICE_NOT_FOUND" | "OUTSIDE_AVAILABILITY" | "INVALID_INPUT" | "UNKNOWN"; message: string };
 
 /**
  * Create a booking transactionally.
@@ -28,6 +28,9 @@ export type CreateBookingResult =
  *   the same booking instead of creating duplicates.
  */
 export async function createBooking(input: CreateBookingInput): Promise<CreateBookingResult> {
+  if (!Number.isFinite(input.startsAt.getTime()) || input.startsAt <= new Date() || input.addressLine.trim().length < 3) {
+    return { ok: false, code: "INVALID_INPUT", message: "Choose a future time and enter a valid address." };
+  }
   // 1. Idempotency short-circuit.
   if (input.idempotencyKey) {
     const existing = await prisma.idempotencyKey.findUnique({
@@ -51,19 +54,23 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
   const endsAt = new Date(startsAt.getTime() + service.durationMin * 60 * 1000);
 
   // 3. Optional sanity check: starts within washer availability for that day.
-  const dow = startsAt.getDay();
-  const hh = startsAt.getHours().toString().padStart(2, "0");
-  const mm = startsAt.getMinutes().toString().padStart(2, "0");
+  if (startsAt.toISOString().slice(0, 10) !== endsAt.toISOString().slice(0, 10)) {
+    return { ok: false, code: "OUTSIDE_AVAILABILITY", message: "The whole booking must fit within one availability slot." };
+  }
+  const dow = startsAt.getUTCDay();
+  const hh = startsAt.getUTCHours().toString().padStart(2, "0");
+  const mm = startsAt.getUTCMinutes().toString().padStart(2, "0");
   const startHM = `${hh}:${mm}`;
+  const endHM = endsAt.toISOString().slice(11, 16);
   const avail = await prisma.availability.findFirst({
     where: {
       washerId: service.washerId,
       dayOfWeek: dow,
       startTime: { lte: startHM },
-      endTime: { gte: startHM },
+      endTime: { gte: endHM },
     },
   });
-  if (!avail) {
+  if (!avail || endsAt > new Date(`${startsAt.toISOString().slice(0, 10)}T${avail.endTime}:00Z`)) {
     return { ok: false, code: "OUTSIDE_AVAILABILITY", message: "Washer is not available at that time" };
   }
 
@@ -103,6 +110,12 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
 
     return { ok: true, bookingId: booking.id, deduped: false };
   } catch (err) {
+    if (input.idempotencyKey) {
+      const existing = await prisma.idempotencyKey.findUnique({ where: { key: input.idempotencyKey } });
+      if (existing?.userId === input.customerId && existing.resource === "booking" && existing.resultId) {
+        return { ok: true, bookingId: existing.resultId, deduped: true };
+      }
+    }
     // Prisma wraps Postgres errors. The exclusion-constraint violation surfaces
     // as P2010 with `code: '23P01'` in meta, OR (depending on Prisma version)
     // as PrismaClientKnownRequestError with that meta.

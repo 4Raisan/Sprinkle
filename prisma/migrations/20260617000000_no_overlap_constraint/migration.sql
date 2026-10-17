@@ -14,6 +14,6 @@ ALTER TABLE "Booking"
   ADD CONSTRAINT bookings_no_overlap
   EXCLUDE USING gist (
     "washerId" WITH =,
-    tstzrange("startsAt", "endsAt") WITH &&
+    tsrange("startsAt", "endsAt", '[)') WITH &&
   )
   WHERE (status <> 'CANCELLED');

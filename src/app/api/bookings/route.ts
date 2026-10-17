@@ -57,7 +57,7 @@ export async function GET() {
       session.user.role === "WASHER"
         ? { washer: { userId: session.user.id } }
         : { customerId: session.user.id },
-    include: { service: true, washer: { include: { user: true } } },
+    include: { service: true, washer: { select: { id: true, user: { select: { name: true } } } } },
     orderBy: { startsAt: "desc" },
     take: 100,
   });

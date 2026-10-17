@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { stripeMocked } from "@/lib/stripe";
 
 /**
  * POST /api/stripe/connect/onboard
@@ -16,18 +14,5 @@ export async function POST() {
   if (!session?.user || session.user.role !== "WASHER") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const profile = await prisma.washerProfile.findUnique({ where: { userId: session.user.id } });
-  if (!profile) return NextResponse.json({ error: "No washer profile" }, { status: 400 });
-
-  const fakeId = `acct_mock_${profile.id.slice(0, 10)}`;
-  await prisma.washerProfile.update({
-    where: { id: profile.id },
-    data: { stripeAccountId: fakeId },
-  });
-
-  return NextResponse.json({
-    stripeAccountId: fakeId,
-    onboardingUrl: stripeMocked ? null : "https://connect.stripe.com/setup/...",
-    mocked: stripeMocked,
-  });
+  return NextResponse.json({ error: "Payout onboarding is not available in this demo." }, { status: 503 });
 }

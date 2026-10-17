@@ -1,0 +1,38 @@
+name: Check Sparkle MVP
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sparkle_test
+          POSTGRES_PASSWORD: test_only
+          POSTGRES_DB: sparkle_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://sparkle_test:test_only@localhost:5432/sparkle_test
+      DATABASE_TEST_URL: postgresql://sparkle_test:test_only@localhost:5432/sparkle_test
+      NEXTAUTH_SECRET: ci-test-secret-not-used-for-hosting-000000000000
+      DEMO_MODE: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run db:deploy
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
