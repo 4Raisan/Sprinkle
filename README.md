@@ -1,10 +1,18 @@
 # Sparkle — car wash marketplace demo
 
+![Sparkle logo](public/brand/logo.svg)
+
 [Live demo](https://sprinkle-mvp.vercel.app)
 
 A small coursework-style MVP built with Next.js, TypeScript, Prisma and PostgreSQL. Customers can register, browse washers and create demo bookings. Washers can manage services and weekly availability.
 
 **Demo only:** no real washes, payments, payouts or email notifications. Existing demo bookings stay `PENDING`; there is no payment-confirmation simulation on the public site. Times are shown in UTC.
+
+## Architecture
+
+![High-level architecture: browser, Next.js on Vercel, and Neon PostgreSQL](docs/architecture.svg)
+
+The browser talks to one Next.js app. Auth.js handles sign-in; server actions and API routes use Prisma to read and write Neon PostgreSQL. Database constraints prevent overlapping bookings.
 
 ## Run locally
 

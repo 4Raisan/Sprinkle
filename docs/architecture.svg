@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="340" viewBox="0 0 960 340" role="img" aria-labelledby="title desc">
+<title id="title">Sparkle architecture</title>
+<desc id="desc">Customers and washers use a browser to access a single Next.js application hosted on Vercel. Auth.js manages sign-in. Server actions and API routes handle bookings, services and availability. Prisma reads and writes a Neon PostgreSQL database.</desc>
+<rect width="960" height="340" rx="12" fill="#fff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#0f172a">
+<text x="32" y="42" font-size="22" font-weight="700">How Sparkle runs</text>
+<g fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"><rect x="32" y="100" width="208" height="150" rx="8"/><rect x="336" y="80" width="288" height="190" rx="8"/><rect x="720" y="100" width="208" height="150" rx="8"/></g>
+<g font-size="18" font-weight="700"><text x="52" y="138">Browser</text><text x="356" y="118">Next.js on Vercel</text><text x="740" y="138">Neon</text></g>
+<g font-size="15" fill="#475569"><text x="52" y="172">Customers · Washers</text><text x="52" y="199">Pages and dashboards</text><text x="356" y="152">Auth.js · Sign-in</text><text x="356" y="180">Server actions / API routes</text><text x="356" y="208">Bookings · Services · Availability</text><text x="356" y="246">Prisma</text><text x="740" y="172">PostgreSQL</text><text x="740" y="199">Users and booking data</text></g>
+<g stroke="#0891b2" stroke-width="2" fill="none"><path d="M252 175h70m-7-5 7 5-7 5M252 175l7-5m-7 5 7 5M636 175h70m-7-5 7 5-7 5M636 175l7-5m-7 5 7 5"/></g>
+<g font-size="12" fill="#475569" text-anchor="middle"><text x="287" y="158">HTTPS</text><text x="671" y="158">SQL / TLS</text></g>
+<text x="32" y="312" font-size="14" fill="#64748b">One app, one database. Payments are disabled in the hosted MVP.</text>
+</g></svg>
