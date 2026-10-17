@@ -5,6 +5,8 @@ build
 dist
 
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 
@@ -17,3 +19,9 @@ Thumbs.db
 
 # Prisma generated client (regenerable)
 src/generated
+
+.vercel/
+*.tsbuildinfo
+test-results/
+playwright-report/
+coverage/
