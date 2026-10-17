@@ -10,12 +10,14 @@ import Reveal from "@/components/Reveal";
 export const dynamic = "force-dynamic";
 
 export default async function BookServicePage({
-  params,
-  searchParams,
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
 }: {
-  params: { serviceId: string };
-  searchParams: { error?: string };
+  params: Promise<{ serviceId: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
+  const params = await paramsPromise;
+  const searchParams = await searchParamsPromise;
   const session = await auth();
   if (!session?.user) {
     redirect(`/auth/signin?callbackUrl=/book/${params.serviceId}`);
@@ -63,7 +65,7 @@ export default async function BookServicePage({
 
       {searchParams.error && (
         <div className="rounded-xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200 backdrop-blur">
-          {decodeURIComponent(searchParams.error)}
+          {searchParams.error}
         </div>
       )}
 
@@ -85,7 +87,7 @@ export default async function BookServicePage({
               );
             }
 
-            const startsAt = new Date(`${date}T${time}:00`);
+            const startsAt = new Date(`${date}T${time}:00Z`);
             const idempotencyKey = randomUUID();
 
             const result = await createBooking({
@@ -114,7 +116,7 @@ export default async function BookServicePage({
             </select>
           </label>
           <label className="block">
-            <span className="label">Time</span>
+            <span className="label">Time (UTC)</span>
             <input
               type="time"
               name="time"
@@ -136,7 +138,7 @@ export default async function BookServicePage({
 
           <div className="flex items-center justify-between border-t border-white/5 pt-5">
             <span className="text-sm text-slate-400">
-              You'll be charged on confirmation.
+              Demo booking only. No payment will be taken.
             </span>
             <button type="submit" className="btn-primary">
               Confirm booking <ArrowRight className="h-4 w-4" />

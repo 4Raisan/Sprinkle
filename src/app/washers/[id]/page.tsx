@@ -7,7 +7,8 @@ import Reveal from "@/components/Reveal";
 
 export const dynamic = "force-dynamic";
 
-export default async function WasherDetailPage({ params }: { params: { id: string } }) {
+export default async function WasherDetailPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const washer = await prisma.washerProfile.findUnique({
     where: { id: params.id },
     include: {

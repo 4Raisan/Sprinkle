@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 import Reveal from "@/components/Reveal";
 
-export default function SignInPage({
-  searchParams,
+export default async function SignInPage({
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: { callbackUrl?: string; error?: string };
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
+  const searchParams = await searchParamsPromise;
+  const callbackUrl = searchParams.callbackUrl?.startsWith("/") && !searchParams.callbackUrl.startsWith("//")
+    ? searchParams.callbackUrl : "/dashboard/customer";
   return (
     <div className="mx-auto max-w-md">
       <Reveal>
@@ -25,11 +30,16 @@ export default function SignInPage({
             <form
               action={async (formData) => {
                 "use server";
-                await signIn("credentials", {
-                  email: formData.get("email"),
-                  password: formData.get("password"),
-                  redirectTo: searchParams.callbackUrl ?? "/dashboard/customer",
-                });
+                try {
+                  await signIn("credentials", {
+                    email: formData.get("email"),
+                    password: formData.get("password"),
+                    redirectTo: callbackUrl,
+                  });
+                } catch (error) {
+                  if (error instanceof AuthError) redirect(`/auth/signin?error=credentials&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+                  throw error;
+                }
               }}
               className="mt-6 space-y-4"
             >

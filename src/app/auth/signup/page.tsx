@@ -14,11 +14,12 @@ const signupSchema = z.object({
   role: z.enum(["CUSTOMER", "WASHER"]).default("CUSTOMER"),
 });
 
-export default function SignUpPage({
-  searchParams,
+export default async function SignUpPage({
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: { role?: string; error?: string };
+  searchParams: Promise<{ role?: string; error?: string }>;
 }) {
+  const searchParams = await searchParamsPromise;
   const defaultRole = searchParams.role === "WASHER" ? "WASHER" : "CUSTOMER";
 
   return (
@@ -67,14 +68,9 @@ export default function SignUpPage({
                     name: data.name,
                     passwordHash,
                     role: data.role,
+                    ...(data.role === "WASHER" ? { washerProfile: { create: { baseRateCents: 2500 } } } : {}),
                   },
                 });
-
-                if (data.role === "WASHER") {
-                  await prisma.washerProfile.create({
-                    data: { userId: user.id, baseRateCents: 2500 },
-                  });
-                }
 
                 await signIn("credentials", {
                   email: data.email,
