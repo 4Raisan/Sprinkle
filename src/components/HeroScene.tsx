@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, Sparkles, Environment, OrbitControls } from "@react-three/drei";
+import { Float, MeshDistortMaterial, Sparkles, OrbitControls } from "@react-three/drei";
 import { Suspense, useRef } from "react";
 import type { Mesh, Group } from "three";
 
@@ -73,6 +73,7 @@ function Orbiters() {
 export default function HeroScene() {
   return (
     <Canvas
+      fallback={<div className="h-full w-full rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.25),transparent_65%)]" />}
       dpr={[1, 2]}
       camera={{ position: [0, 0, 6], fov: 45 }}
       gl={{ antialias: true, alpha: true }}
@@ -90,7 +91,6 @@ export default function HeroScene() {
         <Sparkles count={80} scale={[8, 8, 4]} size={2} speed={0.4} color="#22d3ee" />
         <Sparkles count={50} scale={[10, 6, 4]} size={1.5} speed={0.3} color="#a78bfa" />
 
-        <Environment preset="city" />
         <OrbitControls
           enableZoom={false}
           enablePan={false}

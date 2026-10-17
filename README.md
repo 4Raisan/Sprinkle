@@ -1,5 +1,7 @@
 # Sparkle — car wash marketplace demo
 
+[Live demo](https://sprinkle-booking.vercel.app)
+
 A small coursework-style MVP built with Next.js, TypeScript, Prisma and PostgreSQL. Customers can register, browse washers and create demo bookings. Washers can manage services and weekly availability.
 
 **Demo only:** no real washes, payments, payouts or email notifications. Existing demo bookings stay `PENDING`; there is no payment-confirmation simulation on the public site. Times are shown in UTC.

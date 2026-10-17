@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.DEMO_MODE !== "true") throw new Error("Seeding requires DEMO_MODE=true.");
+  if (await prisma.user.count() > 0) throw new Error("Seed only an empty dedicated demo database; existing data will not be replaced.");
   console.log("Seeding...");
 
   const passwordHash = await bcrypt.hash("password123", 10);
@@ -99,8 +101,8 @@ async function main() {
   const standardService = wendyProfile.services.find((s) => s.name === "Standard Wash + Vacuum")!;
 
   const tomorrow10 = new Date();
-  tomorrow10.setDate(tomorrow10.getDate() + 1);
-  tomorrow10.setHours(10, 0, 0, 0);
+  tomorrow10.setUTCDate(tomorrow10.getUTCDate() + 1);
+  tomorrow10.setUTCHours(10, 0, 0, 0);
   const tomorrow11 = new Date(tomorrow10.getTime() + 60 * 60 * 1000);
 
   await prisma.booking.deleteMany({ where: { customerId: alice.id } });
@@ -111,7 +113,7 @@ async function main() {
       serviceId: standardService.id,
       startsAt: tomorrow10,
       endsAt: tomorrow11,
-      status: "CONFIRMED",
+      status: "PENDING",
       addressLine: "123 Main St, Brooklyn, NY",
       latitude: 40.7,
       longitude: -73.99,

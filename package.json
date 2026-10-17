@@ -18,12 +18,16 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
-  "engines": { "node": "22.x" },
-  "overrides": { "postcss": "8.5.31" },
+  "engines": {
+    "node": "22.x"
+  },
+  "overrides": {
+    "postcss": "8.5.31"
+  },
   "dependencies": {
     "@prisma/client": "^5.20.0",
-    "@react-three/drei": "^9.114.0",
-    "@react-three/fiber": "^8.17.10",
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.2",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
@@ -31,8 +35,8 @@
     "lucide-react": "^0.452.0",
     "next": "15.5.28",
     "next-auth": "5.0.0-beta.32",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
     "stripe": "^17.2.0",
     "tailwind-merge": "^2.5.4",
     "three": "^0.169.0",
@@ -41,8 +45,8 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.16.11",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@types/three": "^0.169.0",
     "autoprefixer": "^10.4.20",
     "postcss": "8.5.31",

@@ -14,9 +14,9 @@ export default function HomePage() {
   return (
     <div className="space-y-24">
       {/* ------------------ HERO ------------------ */}
-      <section className="relative grid items-center gap-10 lg:grid-cols-2">
+      <section className="relative grid min-w-0 grid-cols-1 items-center gap-10 lg:grid-cols-2">
         {/* Glass content */}
-        <Reveal className="relative z-10">
+        <Reveal className="relative z-10 min-w-0">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
             New · Mobile car wash, on demand
@@ -48,7 +48,7 @@ export default function HomePage() {
               <span className="font-semibold text-slate-200">4.9</span> avg washer rating
             </div>
             <div className="hidden h-3 w-px bg-white/10 sm:block" />
-            <div>Powered by Stripe Connect · DB-level no-overlap booking</div>
+            <div>Demo bookings · No payments or real services</div>
           </div>
         </Reveal>
 
