@@ -2,7 +2,9 @@
   <img src="public/brand/logo.svg" width="264" alt="Sparkle" />
 </p>
 
-<h1 align="center">Car wash marketplace</h1>
+<h1 align="center">Sparkle car wash marketplace</h1>
+
+[![CI](https://github.com/4Raisan/Sprinkle/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/4Raisan/Sprinkle/actions/workflows/check.yml)
 
 <p align="center">
   Browse washers, book a time, and manage services.<br />
